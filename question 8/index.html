@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            width: 50%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        .task {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task h4 {
+            margin: 0;
+        }
+        .task p {
+            margin: 5px 0;
+        }
+        .filters {
+            margin-top: 20px;
+        }
+        .edit-mode {
+            background-color: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Task Management</h2>
+
+        <form id="task-form">
+            <input type="text" id="task-title" placeholder="Task Title" required>
+            <textarea id="task-desc" placeholder="Task Description"></textarea>
+            <select id="task-status">
+                <option value="incomplete">Incomplete</option>
+                <option value="complete">Complete</option>
+            </select>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <div class="filters">
+            <button id="filter-all">All</button>
+            <button id="filter-complete">Complete</button>
+            <button id="filter-incomplete">Incomplete</button>
+        </div>
+
+        <div id="task-list"></div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let editIndex = null;
+
+        document.getElementById('task-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('task-title').value;
+            const desc = document.getElementById('task-desc').value;
+            const status = document.getElementById('task-status').value;
+
+            if (editIndex !== null) {
+                tasks[editIndex] = { title, desc, status };
+                editIndex = null;
+                document.querySelector('button[type="submit"]').textContent = 'Add Task';
+            } else {
+                tasks.push({ title, desc, status });
+            }
+
+            document.getElementById('task-form').reset();
+            renderTasks();
+        });
+
+        document.getElementById('filter-all').addEventListener('click', () => renderTasks());
+        document.getElementById('filter-complete').addEventListener('click', () => renderTasks('complete'));
+        document.getElementById('filter-incomplete').addEventListener('click', () => renderTasks('incomplete'));
+
+        function renderTasks(filter = 'all') {
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+            let filteredTasks = tasks;
+
+            if (filter !== 'all') {
+                filteredTasks = tasks.filter(task => task.status === filter);
+            }
+
+            filteredTasks.forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.classList.add('task');
+                if (editIndex === index) taskDiv.classList.add('edit-mode');
+
+                taskDiv.innerHTML = `
+                    <div>
+                        <h4>${task.title}</h4>
+                        <p>${task.desc}</p>
+                        <small>${task.status}</small>
+                    </div>
+                    <div>
+                        <button onclick="editTask(${index})">Edit</button>
+                        <button onclick="deleteTask(${index})">Delete</button>
+                        <button onclick="toggleStatus(${index})">${task.status === 'complete' ? 'Mark Incomplete' : 'Mark Complete'}</button>
+                    </div>
+                `;
+
+                taskList.appendChild(taskDiv);
+            });
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        function editTask(index) {
+            editIndex = index;
+            document.getElementById('task-title').value = tasks[index].title;
+            document.getElementById('task-desc').value = tasks[index].desc;
+            document.getElementById('task-status').value = tasks[index].status;
+            document.querySelector('button[type="submit"]').textContent = 'Update Task';
+            renderTasks();
+        }
+
+        function toggleStatus(index) {
+            tasks[index].status = tasks[index].status === 'complete' ? 'incomplete' : 'complete';
+            renderTasks();
+        }
+
+    </script>
+
+</body>
+</html>

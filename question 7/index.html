@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Data Bar Graph</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .container {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+        }
+        button {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .graph-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+        .bar {
+            width: 30px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        .price-graph, .rating-graph {
+            border: 1px solid black;
+            padding: 10px;
+            width: 40%;
+            text-align: center;
+        }
+        .price-bar {
+            background-color: lightblue;
+        }
+        .rating-bar {
+            background-color: lightgreen;
+        }
+        .sort-buttons {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <input type="text" id="product-name" placeholder="Product Name">
+        <input type="number" id="product-price" placeholder="Product Price">
+        <input type="number" id="product-rating" placeholder="Product Rating (1-5)">
+        <button id="add-product">Add Product</button>
+    </div>
+
+    <div class="sort-buttons">
+        <button id="sort-price">Sort by Price</button>
+        <button id="sort-rating">Sort by Rating</button>
+    </div>
+
+    <div class="graph-container">
+        <div class="price-graph">
+            <h3>Price Graph</h3>
+            <div id="price-bars"></div>
+        </div>
+        <div class="rating-graph">
+            <h3>Rating Graph</h3>
+            <div id="rating-bars"></div>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+
+        document.getElementById('add-product').addEventListener('click', () => {
+            const name = document.getElementById('product-name').value;
+            const price = Number(document.getElementById('product-price').value);
+            const rating = Number(document.getElementById('product-rating').value);
+
+            if (name && price > 0 && rating >= 1 && rating <= 5) {
+                products.push({ name, price, rating });
+                updateGraphs();
+            }
+        });
+
+        document.getElementById('sort-price').addEventListener('click', () => {
+            products.sort((a, b) => a.price - b.price);
+            updateGraphs();
+        });
+
+        document.getElementById('sort-rating').addEventListener('click', () => {
+            products.sort((a, b) => a.rating - b.rating);
+            updateGraphs();
+        });
+
+        function updateGraphs() {
+            const priceBars = document.getElementById('price-bars');
+            const ratingBars = document.getElementById('rating-bars');
+            priceBars.innerHTML = '';
+            ratingBars.innerHTML = '';
+
+            products.forEach(product => {
+                const priceBar = document.createElement('div');
+                priceBar.classList.add('bar', 'price-bar');
+                priceBar.style.height = product.price + 'px';
+                priceBar.title = product.name + ": $" + product.price;
+                priceBars.appendChild(priceBar);
+
+                const ratingBar = document.createElement('div');
+                ratingBar.classList.add('bar', 'rating-bar');
+                ratingBar.style.height = (product.rating * 40) + 'px';
+                ratingBar.title = product.name + ": Rating " + product.rating;
+                ratingBars.appendChild(ratingBar);
+            });
+        }
+    </script>
+
+</body>
+</html>
